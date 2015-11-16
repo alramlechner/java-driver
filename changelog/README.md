@@ -21,6 +21,7 @@
 - [bug] JAVA-1068: Unwrap StatementWrappers when hashing the paging state.
 - [bug] JAVA-831: Mapper can't load an entity where the PK is a UDT.
 - [improvement] JAVA-1021: Improve error message when connect() is called with an invalid keyspace name.
+- [bug] JAVA-819: Driver shouldn't retry on client timeout if statement is not idempotent.
 
 Merged from 2.0 branch:
 
