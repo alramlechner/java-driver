@@ -10,6 +10,7 @@
 - [improvement] JAVA-664: Reduce heap consumption for TokenMap.
 - [improvement] JAVA-1030: Log token to replica map computation times.
 - [bug] JAVA-1039: Minor bugs in Event Debouncer.
+- [bug] JAVA-1064: getTable create statement doesn't properly handle quotes in primary key.
 
 Merged from 2.0 branch:
 
