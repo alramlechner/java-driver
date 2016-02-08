@@ -11,6 +11,7 @@
 - [improvement] JAVA-1030: Log token to replica map computation times.
 - [bug] JAVA-1039: Minor bugs in Event Debouncer.
 - [improvement] JAVA-888: Add cluster-wide percentile tracker.
+- [improvement] JAVA-963: Automatically register PercentileTracker from components that use it.
 
 Merged from 2.0 branch:
 
