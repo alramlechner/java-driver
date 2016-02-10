@@ -475,7 +475,7 @@ class RequestHandler {
                                 assert err.infos instanceof ReadTimeoutException;
                                 ReadTimeoutException rte = (ReadTimeoutException) err.infos;
                                 retry = retryPolicy.onReadTimeout(statement,
-                                        rte.getConsistencyLevel(),
+                                        consistencyToReport(rte.getConsistencyLevel()),
                                         rte.getRequiredAcknowledgements(),
                                         rte.getReceivedAcknowledgements(),
                                         rte.wasDataRetrieved(),
@@ -493,7 +493,7 @@ class RequestHandler {
                                 assert err.infos instanceof WriteTimeoutException;
                                 WriteTimeoutException wte = (WriteTimeoutException) err.infos;
                                 retry = retryPolicy.onWriteTimeout(statement,
-                                        wte.getConsistencyLevel(),
+                                        consistencyToReport(wte.getConsistencyLevel()),
                                         wte.getWriteType(),
                                         wte.getRequiredAcknowledgements(),
                                         wte.getReceivedAcknowledgements(),
@@ -511,7 +511,7 @@ class RequestHandler {
                                 assert err.infos instanceof UnavailableException;
                                 UnavailableException ue = (UnavailableException) err.infos;
                                 retry = retryPolicy.onUnavailable(statement,
-                                        ue.getConsistencyLevel(),
+                                        consistencyToReport(ue.getConsistencyLevel()),
                                         ue.getRequiredReplicas(),
                                         ue.getAliveReplicas(),
                                         retriesByPolicy);
@@ -630,6 +630,12 @@ class RequestHandler {
                 if (queriedHost != null && statement != Statement.DEFAULT)
                     manager.cluster.manager.reportLatency(queriedHost, statement, exceptionToReport, latency);
             }
+        }
+
+        private ConsistencyLevel consistencyToReport(ConsistencyLevel consistencyLevel) {
+            if (consistencyLevel == ConsistencyLevel.SERIAL || consistencyLevel == ConsistencyLevel.LOCAL_SERIAL)
+                return request().consistency();
+            return consistencyLevel;
         }
 
         private Connection.ResponseCallback prepareAndRetry(final String toPrepare) {
