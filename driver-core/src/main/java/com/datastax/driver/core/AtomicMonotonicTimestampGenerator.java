@@ -18,17 +18,26 @@ package com.datastax.driver.core;
 import java.util.concurrent.atomic.AtomicLong;
 
 /**
- * A timestamp generator based on {@code System.currentTimeMillis()}, with an incrementing atomic counter
- * to generate the sub-millisecond part.
+ * A timestamp generator that guarantees monotonically increasing timestamps among all client threads.
  * <p/>
- * This implementation guarantees incrementing timestamps among all client threads, provided that no more than
- * 1000 are requested for a given clock tick (the exact granularity of of {@link System#currentTimeMillis()}
- * depends on the operating system).
+ * The accuracy of the generated timestamps is largely dependent on the
+ * granularity of the underlying operating system's clock.
  * <p/>
- * If that rate is exceeded, a warning is logged and the timestamps don't increment anymore until the next clock
- * tick. If you consistently exceed that rate, consider using {@link ThreadLocalMonotonicTimestampGenerator}.
+ * Generally speaking, this granularity is the millisecond, and
+ * the sub-millisecond part is simply a counter that gets incremented
+ * until the next clock tick, as provided by {@link System#currentTimeMillis()}.
+ * <p/>
+ * On some systems, however, it is possible to have a better granularity by using a JNR
+ * call to {@code gettimeofday}. The driver will use this system call automatically whenever
+ * available, unless the system property {@code com.datastax.driver.USE_NATIVE_CLOCK} is
+ * explicitly set to {@code false}.
+ * <p/>
+ * Beware that to guarantee monotonicity, if more than one call to {@link #next()}
+ * is made within the same microsecond, or in the event of a system clock skew, this generator might
+ * return timestamps that drift out in the future.
  */
 public class AtomicMonotonicTimestampGenerator extends AbstractMonotonicTimestampGenerator {
+
     private AtomicLong lastRef = new AtomicLong(0);
 
     @Override

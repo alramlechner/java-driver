@@ -27,7 +27,8 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
-import static org.testng.Assert.*;
+import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.fail;
 
 public class ThreadLocalMonotonicTimestampGeneratorTest {
 
@@ -51,7 +52,7 @@ public class ThreadLocalMonotonicTimestampGeneratorTest {
                             // Ensure that each thread gets the 1000 microseconds for the mocked millisecond value,
                             // in order
                             for (int i = 0; i < 1000; i++)
-                                assertEquals(generator.next(), fixedTime * 1000 + i);
+                                assertEquals(generator.next(), fixedTime + i);
                         }
                     }));
         }
@@ -74,9 +75,14 @@ public class ThreadLocalMonotonicTimestampGeneratorTest {
         ThreadLocalMonotonicTimestampGenerator generator = new ThreadLocalMonotonicTimestampGenerator();
         generator.clock = new MockClocks.BackInTimeClock();
 
-        long beforeClockResync = generator.next();
-        long afterClockResync = generator.next();
-
-        assertTrue(beforeClockResync < afterClockResync, "The generated timestamps are not increasing on block resync");
+        long start = generator.next();
+        long previous = start;
+        long next = 0;
+        for (int i = 0; i < 1001; i++) {
+            next = generator.next();
+            assertEquals(next, previous + 1);
+            previous = next;
+        }
+        assertEquals(next, start + 1001);
     }
 }

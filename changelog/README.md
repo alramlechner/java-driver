@@ -21,6 +21,7 @@
 - [bug] JAVA-1068: Unwrap StatementWrappers when hashing the paging state.
 - [bug] JAVA-831: Mapper can't load an entity where the PK is a UDT.
 - [improvement] JAVA-1021: Improve error message when connect() is called with an invalid keyspace name.
+- [bug] JAVA-727: Monotonic Timestamp generators should not provide the same timestamp more than once.
 
 Merged from 2.0 branch:
 

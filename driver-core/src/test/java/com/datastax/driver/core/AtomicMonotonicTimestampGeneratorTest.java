@@ -33,6 +33,7 @@ import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.fail;
 
 public class AtomicMonotonicTimestampGeneratorTest {
+
     @Test(groups = "unit")
     public void should_generate_incrementing_timestamps_for_all_threads() throws InterruptedException {
         // Create a generator with a fixed millisecond value
@@ -73,7 +74,7 @@ public class AtomicMonotonicTimestampGeneratorTest {
         // Ensure that the 1000 microseconds for the mocked millisecond value have been generated
         int i = 0;
         for (Long timestamp : allTimestamps) {
-            Long expected = fixedTime * 1000 + i;
+            Long expected = fixedTime + i;
             assertEquals(timestamp, expected);
             i += 1;
         }
