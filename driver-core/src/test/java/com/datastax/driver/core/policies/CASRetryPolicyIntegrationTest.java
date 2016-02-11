@@ -17,6 +17,7 @@ package com.datastax.driver.core.policies;
 
 import com.datastax.driver.core.*;
 import com.datastax.driver.core.exceptions.NoHostAvailableException;
+import com.datastax.driver.core.utils.CassandraVersion;
 import org.mockito.Mockito;
 import org.testng.annotations.Test;
 
@@ -35,6 +36,7 @@ import static org.mockito.Mockito.times;
         dirtiesContext = true,
         createCluster = false
 )
+@CassandraVersion(major = 2.0)
 public class CASRetryPolicyIntegrationTest extends CCMTestsSupport {
 
     @Test(groups = "long")
@@ -64,7 +66,7 @@ public class CASRetryPolicyIntegrationTest extends CCMTestsSupport {
         session.execute("CREATE TABLE foo(k int primary key, c int)");
         session.execute("INSERT INTO foo(k, c) VALUES (0, 0)");
 
-        Statement s = new SimpleStatement("UPDATE foo SET c = 1 WHERE k = 0 IF EXISTS")
+        Statement s = new SimpleStatement("UPDATE foo SET c = 1 WHERE k = 0 IF c = 0")
                 .setConsistencyLevel(TWO)
                 .setSerialConsistencyLevel(SERIAL);
 
