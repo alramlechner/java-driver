@@ -290,6 +290,11 @@ public class MapperTest extends CCMTestsSupport {
 
         @Query("SELECT * FROM posts")
         Result<Post> getAll();
+
+        @Query("SELECT * FROM posts")
+        @QueryParameters(idempotent = true)
+        Statement getAllAsStatement();
+
     }
 
     @Accessor
@@ -447,4 +452,14 @@ public class MapperTest extends CCMTestsSupport {
         newSession.execute("USE " + keyspace);
         assertThat(newSession.getState().getConnectedHosts()).hasSize(1);
     }
+
+    @Test(groups = "short")
+    public void should_flag_statement_as_idempotent() {
+        MappingManager manager = new MappingManager(session());
+        PostAccessor post = manager.createAccessor(PostAccessor.class);
+        Statement stmt = post.getAllAsStatement();
+        assertThat(stmt.isIdempotent()).isEqualTo(true);
+    }
+
+
 }
