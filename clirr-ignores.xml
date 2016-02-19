@@ -46,5 +46,12 @@
     <className>com/datastax/driver/core/ConvictionPolicy$Simple$Factory</className>
     <justification>False positive, the enclosing class is package-private so this was never exposed</justification>
   </difference>
-  
+
+  <difference>
+    <differenceType>7012</differenceType> <!-- method added to interface -->
+    <className>com/datastax/driver/mapping/annotations/QueryParameters</className>
+    <method>boolean[] idempotent()</method>
+    <justification>False positive, it's an annotation and the new method has a default value</justification>
+  </difference>
+
 </differences>
