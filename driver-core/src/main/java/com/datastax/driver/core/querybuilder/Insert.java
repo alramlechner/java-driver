@@ -156,10 +156,14 @@ public class Insert extends BuiltStatement {
      * <p/>
      * Please keep in mind that using this option has a non negligible
      * performance impact and should be avoided when possible.
+     * <p/>
+     * This will configure the statement as non-idempotent, see {@link com.datastax.driver.core.Statement#isIdempotent()}
+     * for more information.
      *
      * @return this INSERT statement.
      */
     public Insert ifNotExists() {
+        this.setNonIdempotentOps();
         this.ifNotExists = true;
         return this;
     }
