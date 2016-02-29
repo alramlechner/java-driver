@@ -72,6 +72,11 @@ public abstract class SchemaStatement extends RegularStatement {
         return null; // there is no token awareness for DDL statements
     }
 
+    @Override
+    public Boolean isIdempotent() {
+        return false;
+    }
+
     static void validateNotEmpty(String columnName, String label) {
         if (Strings.isNullOrEmpty(columnName)) {
             throw new IllegalArgumentException(label + " should not be null or blank");

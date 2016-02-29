@@ -16,6 +16,8 @@
 package com.datastax.driver.core;
 
 import com.datastax.driver.core.querybuilder.BuiltStatement;
+import com.datastax.driver.core.schemabuilder.SchemaBuilder;
+import com.datastax.driver.core.schemabuilder.SchemaStatement;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
@@ -23,6 +25,7 @@ import com.google.common.collect.Sets;
 import org.testng.annotations.Test;
 
 import static com.datastax.driver.core.querybuilder.QueryBuilder.*;
+import static com.datastax.driver.core.schemabuilder.SchemaBuilder.*;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class StatementIdempotenceTest {
@@ -84,6 +87,14 @@ public class StatementIdempotenceTest {
                 assertThat(statement.isIdempotent()).isEqualTo(manualValue);
             }
         }
+    }
+
+    @Test(groups = "unit")
+    public void should_put_idempotence_to_false_for_schema_statements() {
+        // Testing only on one statement because we do not differentiate any case and set idempotence to false for all
+        // Schema statements.
+        SchemaStatement st = createTable("foo").addPartitionKey("k", DataType.cint()).addStaticColumn("v", DataType.text());
+        assertThat(st.isIdempotent()).isEqualTo(false);
     }
 
     private static ImmutableList<BuiltStatement> idempotentBuiltStatements() {
