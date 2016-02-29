@@ -138,12 +138,15 @@ public class StatementIdempotenceTest {
                 update("foo").with(set("v", Lists.newArrayList(uuid()))).where(eq("k", 1)),
 
                 // LWT
-                update("foo").where(eq("is", "charlie")).ifExists(),
+                update("foo").where(eq("is", "charlie?")).ifExists(),
                 update("foo").where(eq("good", "drivers")).onlyIf(contains("developers", "datastax")),
                 update("foo").onlyIf(contains("developers", "datastax")).with(set("v", 0)),
                 update("foo").with(set("v", 0)).onlyIf(contains("hello", "world")),
 
                 insertInto("foo").value("k", 1).value("v", Sets.newHashSet(now())).ifNotExists(),
+
+                delete().from("foo").where(eq("k", 2)).ifExists(),
+                delete().from("foo").onlyIf(eq("k", 2)),
 
                 // raw() calls
 

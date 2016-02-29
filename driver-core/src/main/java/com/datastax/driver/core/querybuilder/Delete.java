@@ -114,6 +114,7 @@ public class Delete extends BuiltStatement {
      * @return the conditions of this query to which more conditions can be added.
      */
     public Conditions onlyIf(Clause condition) {
+        setNonIdempotentOps();
         return conditions.and(condition);
     }
 
@@ -123,6 +124,7 @@ public class Delete extends BuiltStatement {
      * @return the conditions of this query to which more conditions can be added.
      */
     public Conditions onlyIf() {
+        setNonIdempotentOps();
         return conditions;
     }
 
@@ -165,6 +167,7 @@ public class Delete extends BuiltStatement {
      */
     public Delete ifExists() {
         this.ifExists = true;
+        setNonIdempotentOps();
         return this;
     }
 
