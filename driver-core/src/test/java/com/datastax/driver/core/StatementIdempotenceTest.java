@@ -89,14 +89,6 @@ public class StatementIdempotenceTest {
         }
     }
 
-    @Test(groups = "unit")
-    public void should_put_idempotence_to_false_for_schema_statements() {
-        // Testing only on one statement because we do not differentiate any case and set idempotence to false for all
-        // Schema statements.
-        SchemaStatement st = createTable("foo").addPartitionKey("k", DataType.cint()).addStaticColumn("v", DataType.text());
-        assertThat(st.isIdempotent()).isEqualTo(false);
-    }
-
     private static ImmutableList<BuiltStatement> idempotentBuiltStatements() {
         return ImmutableList.<BuiltStatement>of(
                 update("foo").with(set("v", 1)).where(eq("k", 1)), // set simple value
