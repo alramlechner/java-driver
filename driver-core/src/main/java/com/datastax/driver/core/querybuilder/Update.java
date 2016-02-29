@@ -248,6 +248,9 @@ public class Update extends BuiltStatement {
         public Where and(Clause clause) {
             clauses.add(clause);
             statement.maybeAddRoutingKey(clause.name(), clause.firstValue());
+            if (!hasNonIdempotentOps() && !Utils.isIdempotent(clause)) {
+                statement.setNonIdempotentOps();
+            }
             checkForBindMarkers(clause);
             return this;
         }

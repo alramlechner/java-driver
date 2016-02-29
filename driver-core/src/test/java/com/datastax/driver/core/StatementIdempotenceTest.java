@@ -148,6 +148,11 @@ public class StatementIdempotenceTest {
                 update("foo").with(set("v", Lists.newArrayList(now()))).where(eq("k", 1)),
                 update("foo").with(set("v", Lists.newArrayList(uuid()))).where(eq("k", 1)),
 
+                delete().from("foo").where(lt("k", fcall("now"))),
+                delete().from("foo").where(lt("k", now())),
+                update("foo").where(eq("k", fcall("now"))),
+                delete().listElt("a", 1).from("test_coll"),
+
                 // LWT
                 update("foo").where(eq("is", "charlie?")).ifExists(),
                 update("foo").where(eq("good", "drivers")).onlyIf(contains("developers", "datastax")),

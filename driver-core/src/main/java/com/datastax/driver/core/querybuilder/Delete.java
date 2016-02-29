@@ -39,6 +39,15 @@ public class Delete extends BuiltStatement {
         this.where = new Where(this);
         this.usings = new Options(this);
         this.conditions = new Conditions(this);
+
+        // This is for JAVA-1089, if the query deletes an element in a list, the statement should be non-idempotent.
+        for (Selector sel : columns) {
+            if (sel instanceof CollectionElementSelector) {
+                if (((CollectionElementSelector) sel).key instanceof Integer) {
+                    setNonIdempotentOps();
+                }
+            }
+        }
     }
 
     Delete(TableMetadata table, List<Selector> columns) {
@@ -48,6 +57,15 @@ public class Delete extends BuiltStatement {
         this.where = new Where(this);
         this.usings = new Options(this);
         this.conditions = new Conditions(this);
+
+        // This is for JAVA-1089, if the query deletes an element in a list, the statement should be non-idempotent.
+        for (Selector sel : columns) {
+            if (sel instanceof CollectionElementSelector) {
+                if (((CollectionElementSelector) sel).key instanceof Integer) {
+                    setNonIdempotentOps();
+                }
+            }
+        }
     }
 
     @Override
@@ -191,6 +209,9 @@ public class Delete extends BuiltStatement {
         public Where and(Clause clause) {
             clauses.add(clause);
             statement.maybeAddRoutingKey(clause.name(), clause.firstValue());
+            if (!hasNonIdempotentOps() && !Utils.isIdempotent(clause)){
+                statement.setNonIdempotentOps();
+            }
             checkForBindMarkers(clause);
             return this;
         }
