@@ -106,8 +106,17 @@ public interface RetryPolicy {
         /**
          * Creates a {@link RetryDecision.Type#RETRY} retry decision using
          * the same host and the provided consistency level.
+         * <p/>
+         * If the provided consistency level is {@code null},
+         * the retry will be done done at the same consistency level
+         * as in the original attempt.
+         * <p/>
+         * Beware that {@link ConsistencyLevel#isSerial() serial} consistency levels
+         * should never be passed to this method; attempting to do so would trigger an
+         * {@link com.datastax.driver.core.exceptions.InvalidQueryException InvalidQueryException}.
          *
-         * @param consistency the consistency level to use for the retry.
+         * @param consistency the consistency level to use for the retry; if {@code null},
+         *                    the original consistency level will be used.
          * @return a {@link RetryDecision.Type#RETRY} decision using
          * the same host and the provided consistency level
          */
@@ -127,12 +136,22 @@ public interface RetryPolicy {
         /**
          * Creates a {@link RetryDecision.Type#RETRY} retry decision using the next host
          * in the query plan, and using the provided consistency level.
+         * <p/>
+         * If the provided consistency level is {@code null},
+         * the retry will be done done at the same consistency level
+         * as in the original attempt.
+         * <p/>
+         * Beware that {@link ConsistencyLevel#isSerial() serial} consistency levels
+         * should never be passed to this method; attempting to do so would trigger an
+         * {@link com.datastax.driver.core.exceptions.InvalidQueryException InvalidQueryException}.
          *
+         * @param consistency the consistency level to use for the retry; if {@code null},
+         *                    the original consistency level will be used.
          * @return a {@link RetryDecision.Type#RETRY} retry decision using the next host
          * in the query plan, and using the provided consistency level.
          */
-        public static RetryDecision tryNextHost(ConsistencyLevel retryCL) {
-            return new RetryDecision(Type.RETRY, retryCL, false);
+        public static RetryDecision tryNextHost(ConsistencyLevel consistency) {
+            return new RetryDecision(Type.RETRY, consistency, false);
         }
 
         @Override
