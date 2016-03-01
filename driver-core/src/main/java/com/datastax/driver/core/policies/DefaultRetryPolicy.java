@@ -42,9 +42,9 @@ public class DefaultRetryPolicy implements ExtendedRetryPolicy {
     }
 
     /**
-     * Defines whether to retry and at which consistency level on a read timeout.
+     * {@inheritDoc}
      * <p/>
-     * This method triggers a maximum of one retry, and only if enough
+     * This implementation triggers a maximum of one retry, and only if enough
      * replicas had responded to the read request but data was not retrieved
      * amongst those. Indeed, that case usually means that enough replica
      * are alive to satisfy the consistency but the coordinator picked a
@@ -53,15 +53,6 @@ public class DefaultRetryPolicy implements ExtendedRetryPolicy {
      * timeout the dead replica will likely have been detected as dead and
      * the retry has a high chance of success.
      *
-     * @param statement         the original query that timed out.
-     * @param cl                the original consistency level of the read that timed out.
-     * @param requiredResponses the number of responses that were required to
-     *                          achieve the requested consistency level.
-     * @param receivedResponses the number of responses that had been received
-     *                          by the time the timeout exception was raised.
-     * @param dataRetrieved     whether actual data (by opposition to data checksum)
-     *                          was present in the received responses.
-     * @param nbRetry           the number of retries already performed for this operation.
      * @return {@code RetryDecision.retry(cl)} if no retry attempt has yet been tried and
      * {@code receivedResponses >= requiredResponses && !dataRetrieved}, {@code RetryDecision.rethrow()} otherwise.
      */
@@ -74,9 +65,9 @@ public class DefaultRetryPolicy implements ExtendedRetryPolicy {
     }
 
     /**
-     * Defines whether to retry and at which consistency level on a write timeout.
+     * {@inheritDoc}
      * <p/>
-     * This method triggers a maximum of one retry, and only in the case of
+     * This implementation triggers a maximum of one retry, and only in the case of
      * a {@code WriteType.BATCH_LOG} write. The reasoning for the retry in
      * that case is that write to the distributed batch log is tried by the
      * coordinator of the write against a small subset of all the nodes alive
@@ -86,14 +77,6 @@ public class DefaultRetryPolicy implements ExtendedRetryPolicy {
      * nodes will likely have been detected as dead and the retry has thus a
      * high chance of success.
      *
-     * @param statement    the original query that timed out.
-     * @param cl           the original consistency level of the write that timed out.
-     * @param writeType    the type of the write that timed out.
-     * @param requiredAcks the number of acknowledgments that were required to
-     *                     achieve the requested consistency level.
-     * @param receivedAcks the number of acknowledgments that had been received
-     *                     by the time the timeout exception was raised.
-     * @param nbRetry      the number of retry already performed for this operation.
      * @return {@code RetryDecision.retry(cl)} if no retry attempt has yet been tried and
      * {@code writeType == WriteType.BATCH_LOG}, {@code RetryDecision.rethrow()} otherwise.
      */
@@ -108,11 +91,10 @@ public class DefaultRetryPolicy implements ExtendedRetryPolicy {
     }
 
     /**
-     * Defines whether to retry and at which consistency level on an
-     * unavailable exception.
+     * {@inheritDoc}
      * <p/>
-     * This method triggers a retry iff no retry has been executed before
-     * (nbRetry == 0), with
+     * This implementation triggers a retry iff no retry has been executed before
+     * (nbRetry == 0) and the requested consistency level is not {@link ConsistencyLevel#isSerial() serial}, with
      * {@link RetryPolicy.RetryDecision#tryNextHost(ConsistencyLevel) RetryDecision.tryNextHost(cl)},
      * otherwise it throws an exception. The retry will be processed on the next host
      * in the query plan according to the current Load Balancing Policy.
@@ -121,15 +103,8 @@ public class DefaultRetryPolicy implements ExtendedRetryPolicy {
      * be "network" isolated from all the other nodes but can still answer to
      * the client, it makes sense to retry the query on another node.
      *
-     * @param statement       the original query for which the consistency level cannot
-     *                        be achieved.
-     * @param cl              the original consistency level for the operation.
-     * @param requiredReplica the number of replica that should have been
-     *                        (known) alive for the operation to be attempted.
-     * @param aliveReplica    the number of replica that were know to be alive by
-     *                        the coordinator of the operation.
-     * @param nbRetry         the number of retry already performed for this operation.
-     * @return {@code RetryDecision.rethrow()}.
+     * @return {@code RetryDecision.tryNextHost(cl)} if {@code nbRetry == 0 && !cl.isSerial()},
+     * otherwise {@code RetryDecision.rethrow()}.
      */
     @Override
     public RetryDecision onUnavailable(Statement statement, ConsistencyLevel cl, int requiredReplica, int aliveReplica, int nbRetry) {

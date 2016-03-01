@@ -158,7 +158,9 @@ public interface RetryPolicy {
      * {@link com.datastax.driver.core.exceptions.ReadTimeoutException#wasDataRetrieved}).
      *
      * @param statement         the original query that timed out.
-     * @param cl                the original consistency level of the read that timed out.
+     * @param cl                the requested consistency level of the read that timed out.
+     *                          Note that this can never be a {@link ConsistencyLevel#isSerial() serial}
+     *                          consistency level.
      * @param requiredResponses the number of responses that were required to
      *                          achieve the requested consistency level.
      * @param receivedResponses the number of responses that had been received
@@ -176,7 +178,13 @@ public interface RetryPolicy {
      * Defines whether to retry and at which consistency level on a write timeout.
      *
      * @param statement    the original query that timed out.
-     * @param cl           the original consistency level of the write that timed out.
+     * @param cl           the requested consistency level of the write that timed out.
+     *                     If the timeout occurred at the "paxos" phase of a
+     *                     <a href="https://docs.datastax.com/en/cassandra/2.1/cassandra/dml/dml_ltwt_transaction_c.html">Lightweight transaction</a>,
+     *                     then {@code cl} will actually be the requested {@link ConsistencyLevel#isSerial() serial} consistency level.
+     *                     <em>Beware that serial consistency levels should never be passed to a {@link RetryDecision RetryDecision} as this would
+     *                     invariably trigger an {@link com.datastax.driver.core.exceptions.InvalidQueryException InvalidQueryException}</em>.
+     *                     Also, when {@code cl} is {@link ConsistencyLevel#isSerial() serial}, then {@code writeType} is always {@link WriteType#CAS CAS}.
      * @param writeType    the type of the write that timed out.
      * @param requiredAcks the number of acknowledgments that were required to
      *                     achieve the requested consistency level.
@@ -195,7 +203,12 @@ public interface RetryPolicy {
      *
      * @param statement       the original query for which the consistency level cannot
      *                        be achieved.
-     * @param cl              the original consistency level for the operation.
+     * @param cl              the requested consistency level for the operation.
+     *                        If the operation failed at the "paxos" phase of a
+     *                        <a href="https://docs.datastax.com/en/cassandra/2.1/cassandra/dml/dml_ltwt_transaction_c.html">Lightweight transaction</a>,
+     *                        then {@code cl} will actually be the requested {@link ConsistencyLevel#isSerial() serial} consistency level.
+     *                        <em>Beware that serial consistency levels should never be passed to a {@link RetryDecision RetryDecision} as this would
+     *                        invariably trigger an {@link com.datastax.driver.core.exceptions.InvalidQueryException InvalidQueryException}</em>.
      * @param requiredReplica the number of replica that should have been
      *                        (known) alive for the operation to be attempted.
      * @param aliveReplica    the number of replica that were know to be alive by
