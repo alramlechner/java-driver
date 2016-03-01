@@ -189,7 +189,9 @@ public class DowngradingConsistencyRetryPolicy implements ExtendedRetryPolicy {
      */
     @Override
     public RetryDecision onUnavailable(Statement statement, ConsistencyLevel cl, int requiredReplica, int aliveReplica, int nbRetry) {
-        if (nbRetry != 0)
+        // JAVA-764: if the requested consistency level is serial, it means that the operation failed at the paxos phase of a LWT.
+        // In this case, the operation should not be retried as it is unlikely to succeed.
+        if (nbRetry != 0 || cl.isSerial())
             return RetryDecision.rethrow();
 
         // Tries the biggest CL that is expected to work

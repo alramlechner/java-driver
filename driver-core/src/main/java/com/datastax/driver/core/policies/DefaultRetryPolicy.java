@@ -103,6 +103,7 @@ public class DefaultRetryPolicy implements ExtendedRetryPolicy {
             return RetryDecision.rethrow();
 
         // If the batch log write failed, retry the operation as this might just be we were unlucky at picking candidates
+        // JAVA-764: testing the write type automatically filters out serial consistency levels as these have always WriteType.CAS.
         return writeType == WriteType.BATCH_LOG ? RetryDecision.retry(cl) : RetryDecision.rethrow();
     }
 
@@ -132,7 +133,9 @@ public class DefaultRetryPolicy implements ExtendedRetryPolicy {
      */
     @Override
     public RetryDecision onUnavailable(Statement statement, ConsistencyLevel cl, int requiredReplica, int aliveReplica, int nbRetry) {
-        return (nbRetry == 0)
+        // JAVA-764: if the requested consistency level is serial, it means that the operation failed at the paxos phase of a LWT.
+        // In this case, the operation should not be retried as it is unlikely to succeed.
+        return (nbRetry == 0 && !cl.isSerial())
                 ? RetryDecision.tryNextHost(cl)
                 : RetryDecision.rethrow();
     }
