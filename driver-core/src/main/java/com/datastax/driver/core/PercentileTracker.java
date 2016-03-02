@@ -83,11 +83,14 @@ public abstract class PercentileTracker implements LifecycleAwareLatencyTracker 
     /**
      * Computes a key used to categorize measurements. Measurements with the same key will be recorded in the same
      * histogram.
+     * <p/>
+     * It's recommended to keep the number of distinct keys low, in order to limit the memory footprint of the
+     * histograms.
      *
      * @param host      the host that was queried.
      * @param statement the statement that was executed.
      * @param exception if the query failed, the corresponding exception.
-     * @return the key, or {@code null} if we're not yet ready to record.
+     * @return the key, or {@code null} if we don't want to record that measurement.
      */
     protected abstract Object computeKey(Host host, Statement statement, Exception exception);
 
@@ -119,7 +122,7 @@ public abstract class PercentileTracker implements LifecycleAwareLatencyTracker 
      */
     public long getLatencyAtPercentile(Host host, Statement statement, Exception exception, double percentile) {
         checkArgument(percentile >= 0.0 && percentile < 100,
-                "percentile must be between 0.0 and 100 (was %f)");
+                "percentile must be between 0.0 and 100 (was %s)", percentile);
         Histogram histogram = getLastIntervalHistogram(host, statement, exception);
         if (histogram == null || histogram.getTotalCount() < minRecordedValues)
             return -1;

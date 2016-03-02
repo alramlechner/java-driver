@@ -16,8 +16,9 @@
 package com.datastax.driver.core;
 
 /**
- * A {@code PercentileTracker} that maintains a separate histogram for each host. This gives you per-host latency
- * percentiles.
+ * A {@code PercentileTracker} that maintains a separate histogram for each host.
+ * <p/>
+ * This gives you per-host latency percentiles, meaning that each host will only be compared to itself.
  */
 public class PerHostPercentileTracker extends PercentileTracker {
     private PerHostPercentileTracker(long highestTrackableLatencyMillis,

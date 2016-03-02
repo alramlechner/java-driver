@@ -16,8 +16,10 @@
 package com.datastax.driver.core;
 
 /**
- * A {@code PercentileTracker} that aggregates all measurements into a single histogram. This gives you global latency
- * percentiles for the whole cluster.
+ * A {@code PercentileTracker} that aggregates all measurements into a single histogram.
+ * <p/>
+ * This gives you global latency percentiles for the whole cluster, meaning that latencies of slower hosts will tend to
+ * appear in higher percentiles.
  */
 public class ClusterWidePercentileTracker extends PercentileTracker {
     private volatile Cluster cluster;
