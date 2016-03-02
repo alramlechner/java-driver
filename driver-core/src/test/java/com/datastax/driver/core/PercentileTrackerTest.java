@@ -141,7 +141,7 @@ public abstract class PercentileTrackerTest<B extends PercentileTracker.Builder<
                 tracker.update(defaultHost, defaultStatement, defaultException, TimeUnit.NANOSECONDS.convert(1, TimeUnit.MILLISECONDS));
             }
 
-            // HdrHistogram adjusts its max based on byte count, with a max of 1000, that allows a max vaue of 2047 (2^8-1).
+            // HdrHistogram adjusts its max based on bucket size, with these values it allows a max value of 2047 (2^11-1).
             long largeLatency = 2048;
             // when - recording a value larger than max trackable value.
             tracker.update(defaultHost, defaultStatement, defaultException, TimeUnit.NANOSECONDS.convert(largeLatency, TimeUnit.MILLISECONDS));
