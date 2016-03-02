@@ -16,7 +16,10 @@
 package com.datastax.driver.core.utils;
 
 import com.datastax.driver.core.DataType;
+import com.datastax.driver.core.MemoryAppender;
 import com.datastax.driver.core.ProtocolVersion;
+import org.apache.log4j.Level;
+import org.apache.log4j.Logger;
 import org.testng.annotations.Test;
 
 import java.nio.ByteBuffer;
@@ -26,10 +29,31 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentSkipListSet;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertTrue;
 
 public class UUIDsTest {
+
+    private static final Logger logger = Logger.getLogger(UUIDs.class);
+
+
+    @Test(groups = "isolated")
+    public void should_obtain_pid_through_native_call() {
+        // In the general case the JNR call should *just* work as most systems should POSIX getpid.
+        MemoryAppender appender = new MemoryAppender();
+        Level originalLevel = logger.getLevel();
+        try {
+            logger.setLevel(Level.INFO);
+            logger.addAppender(appender);
+            UUIDs.timeBased();
+
+            assertThat(appender.get()).contains("PID obtained through native call to getpid()");
+        } finally {
+            logger.removeAppender(appender);
+            logger.setLevel(originalLevel);
+        }
+    }
 
     @Test(groups = "unit")
     public void conformanceTest() {

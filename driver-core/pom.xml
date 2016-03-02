@@ -371,6 +371,7 @@
                    this prevents a fork being created for each test class. -->
               <includes>
                 <include>**/SSL*Test.java</include>
+                <include>**/UUIDsTest.java</include>
               </includes>
               <reportNameSuffix>isolated</reportNameSuffix>
               <useFile>false</useFile>
