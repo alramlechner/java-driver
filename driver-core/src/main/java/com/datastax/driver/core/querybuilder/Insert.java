@@ -15,8 +15,10 @@
  */
 package com.datastax.driver.core.querybuilder;
 
+import com.datastax.driver.core.ColumnMetadata;
 import com.datastax.driver.core.TableMetadata;
 
+import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -33,14 +35,22 @@ public class Insert extends BuiltStatement {
     private boolean ifNotExists;
 
     Insert(String keyspace, String table) {
-        super(keyspace);
-        this.table = table;
-        this.usings = new Options(this);
+        this(keyspace, table, null, null);
     }
 
     Insert(TableMetadata table) {
-        super(table);
-        this.table = escapeId(table.getName());
+        this(escapeId(table.getKeyspace().getName()),
+                escapeId(table.getName()),
+                new ByteBuffer[table.getPartitionKey().size()],
+                table.getPartitionKey());
+    }
+
+    Insert(String keyspace,
+           String table,
+           ByteBuffer[] routingKey,
+           List<ColumnMetadata> partitionKey) {
+        super(keyspace, partitionKey, routingKey);
+        this.table = table;
         this.usings = new Options(this);
     }
 

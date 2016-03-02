@@ -15,9 +15,11 @@
  */
 package com.datastax.driver.core.querybuilder;
 
+import com.datastax.driver.core.ColumnMetadata;
 import com.datastax.driver.core.TableMetadata;
 import com.datastax.driver.core.querybuilder.Assignment.CounterAssignment;
 
+import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -34,18 +36,22 @@ public class Update extends BuiltStatement {
     private boolean ifExists;
 
     Update(String keyspace, String table) {
-        super(keyspace);
-        this.table = table;
-        this.assignments = new Assignments(this);
-        this.where = new Where(this);
-        this.usings = new Options(this);
-        this.conditions = new Conditions(this);
-        this.ifExists = false;
+        this(keyspace, table, null, null);
     }
 
     Update(TableMetadata table) {
-        super(table);
-        this.table = escapeId(table.getName());
+        this(escapeId(table.getKeyspace().getName()),
+                escapeId(table.getName()),
+                new ByteBuffer[table.getPartitionKey().size()],
+                table.getPartitionKey());
+    }
+
+    Update(String keyspace,
+           String table,
+           ByteBuffer[] routingKey,
+           List<ColumnMetadata> partitionKey) {
+        super(keyspace, partitionKey, routingKey);
+        this.table = table;
         this.assignments = new Assignments(this);
         this.where = new Where(this);
         this.usings = new Options(this);

@@ -309,7 +309,7 @@ abstract class Utils {
             }
         } else if (value instanceof Clause){
             Object clauseValue = ((Clause) value).firstValue();
-            return !(clauseValue instanceof FCall);
+            return isIdempotent(clauseValue);
         }
         return true;
     }
